@@ -5,6 +5,7 @@ import { SequelizeModule } from "@nestjs/sequelize"
 import { OtpModel } from "./models/Otp.Model"
 import { UserModel } from "./models/User.Model"
 
+
 @Module({
  imports:[SequelizeModule.forFeature([UserModel,OtpModel])],
  controllers: [UsersController],

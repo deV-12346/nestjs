@@ -3,6 +3,7 @@ import { ConfigModule } from "@nestjs/config"
 import { SequelizeModule } from "@nestjs/sequelize"
 import { UsersModule } from "./modules/users/users.module"
 import { AuthModule } from "./modules/auth/auth.module"
+import { PassportModule } from "@nestjs/passport"
 @Module({
  imports: [
   ConfigModule.forRoot({
@@ -19,6 +20,7 @@ import { AuthModule } from "./modules/auth/auth.module"
   }),
   AuthModule,
   UsersModule,
+  PassportModule.register({ defaultStrategy: 'jwt', global: true }),
  ],
 })
 export class AppModule {}

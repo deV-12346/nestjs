@@ -5,14 +5,11 @@ import { RefreshStrategy } from "./strategies/refresh.strategy";
 import { AuthController } from "./auth.controller";
 import { JwtModule } from "@nestjs/jwt";
 import { UsersModule } from "../users/users.module";
-import { PassportModule } from "@nestjs/passport";
 import { SequelizeModule } from "@nestjs/sequelize";
 import { UserModel } from "../users/models/User.Model";
 
 @Module({
     imports:[
-        UsersModule,
-        PassportModule,
         JwtModule.register({}),
         SequelizeModule.forFeature([UserModel])
     ],

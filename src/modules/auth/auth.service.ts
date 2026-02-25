@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from "@nestjs/common"
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common"
 import { UserModel } from "../users/models/User.Model";
 import { InjectModel } from "@nestjs/sequelize";
 import { LoginDto } from "./dto/loginUser.dto";
@@ -11,9 +11,9 @@ export class AuthService {
     constructor(@InjectModel(UserModel) private readonly userModel:typeof UserModel,
    private readonly jwtService:JwtService,
    private readonly configService:ConfigService){}
-    async generateAccessToken(user:any) {
+    async generateAccessToken(user) {
         const payload = {
-            sub:user.u_id,
+            u_id:user.u_id,
             username:user.username,
             email:user.email
         }
@@ -23,9 +23,9 @@ export class AuthService {
         })
         return accessToken
     }
-    async generateRefreshToken(user:any) {
+    async generateRefreshToken(user) {
         const payload = {
-            sub:user.u_id,
+            u_id:user.u_id,
             username:user.username,
             email:user.email
         }
@@ -64,6 +64,43 @@ export class AuthService {
       res.cookie('accessToken',accessToken,options)
       return {
         message:"Login successfully"
+      }
+    }
+    async regenerateRefreshToken(userId,oldRefreshToken:string,res:Response){
+      const user = await this.userModel.findByPk(userId)
+      if(user?.refreshtoken !== oldRefreshToken){
+        throw new ForbiddenException('Invalid Refresh Token')
+      }
+      console.log(user)
+      const accessToken = await this.generateAccessToken(user)
+      const refreshToken = await this.generateRefreshToken(user)
+      await user.update({
+        refreshtoken:refreshToken
+      })
+      const options = {
+        secure:true,
+        httpOnly:true
+      }
+      res.cookie('refreshToken',refreshToken,options)
+      res.cookie('accessToken',accessToken,options)
+      return {message:"Token regenerated successfully"}
+    }
+    async logout(u_id:number,res:Response){
+      const user = await this.userModel.findByPk(u_id)
+      if(!user){
+        throw new NotFoundException('User not found')
+      }
+      await user.update({
+        refreshtoken:null
+      })
+      const options = {
+        secure:true,
+        httpOnly:true
+      }
+      res.clearCookie('accessToken',options)
+      res.clearCookie('refreshToken',options)
+      return {
+        message:"Logout Successfully"
       }
     }
 }

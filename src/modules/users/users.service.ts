@@ -120,4 +120,14 @@ export class UsersService {
            throw error
        }
     }
+    async MyProfile(u_id:number){
+        const user = await this.userModel.findByPk(u_id)
+        if(!user){
+            throw new NotFoundException('User not found')
+        }
+        return {
+            messgae:"Profile Fethced",
+            user
+        }
+    }
 }
