@@ -4,6 +4,7 @@ import { CreateUserDto } from "./dto/CreateUserDto";
 import { VerifyUserDto } from "./dto/VerifyUserDto";
 import { AuthGuard } from "@nestjs/passport";
 import type { Request } from "express";
+import { CreateAddressDto } from "./dto/CreateAddressDto";
 
 @Controller("user")
 export class UsersController {
@@ -21,5 +22,13 @@ export class UsersController {
     MyProfile(@Req() req:Request){
       const {u_id} = req.user
       return this.userService.MyProfile(u_id)
+    }
+
+    @UseGuards(AuthGuard('jwt'))
+    @Post('/add-address')
+    AddAddress(@Body() dto:CreateAddressDto,@Req() req:Request){
+        const {u_id} = req.user
+        dto = {...dto, u_id}
+        return this.userService.AddAddress(dto)
     }
 }

@@ -4,10 +4,11 @@ import { UsersService } from "./users.service"
 import { SequelizeModule } from "@nestjs/sequelize"
 import { OtpModel } from "./models/Otp.Model"
 import { UserModel } from "./models/User.Model"
+import { AddressModel } from "./models/Address.Model"
 
 
 @Module({
- imports:[SequelizeModule.forFeature([UserModel,OtpModel])],
+ imports:[SequelizeModule.forFeature([UserModel,OtpModel,AddressModel])],
  controllers: [UsersController],
  providers: [UsersService],
 })

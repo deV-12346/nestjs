@@ -6,12 +6,15 @@ import { OtpModel } from "./models/Otp.Model";
 import { Sequelize } from "sequelize-typescript";
 import { VerifyUserDto } from "./dto/VerifyUserDto";
 import * as bcrypt from "bcrypt"
+import { CreateAddressDto } from "./dto/CreateAddressDto";
+import { AddressModel } from "./models/Address.Model";
 
 @Injectable()
 export class UsersService {
     constructor(
     @InjectModel(UserModel) private readonly userModel: typeof UserModel,
     @InjectModel(OtpModel) private readonly otpModel:typeof OtpModel,
+    @InjectModel(AddressModel) private readonly addressModel:typeof AddressModel,
     private readonly sequelizer:Sequelize){}
     async RegisterUser(dto:CreateUserDto){
         const t = await this.sequelizer.transaction()
@@ -129,5 +132,54 @@ export class UsersService {
             messgae:"Profile Fethced",
             user
         }
+    }
+    async AddAddress(dto:CreateAddressDto){
+      const {
+        u_id,
+        type,
+        is_primary,
+        city,
+        state,
+        street,
+        nation,
+        pincode,
+        contact_no
+      } = dto
+      const findPrimaryAddress = await this.addressModel.findOne({
+        where :{u_id,is_primary:true}
+      })
+      if(findPrimaryAddress){
+        throw new BadRequestException("Primary address should be only one")
+      }
+      const res = await this.sequelizer.query(
+        `call add_address(
+        :u_id,
+        :type,
+        :is_primary,
+        :city,
+        :state,
+        :street,
+        :nation,
+        :pincode,
+        :contact_no
+        )`,
+        {
+        replacements:{
+        u_id,
+        type,
+        is_primary,
+        city,
+        state,
+        street,
+        nation,
+        pincode,
+        contact_no
+        }
+       }
+      )
+      console.log(res)
+      return {
+        message:"Address added successfully"
+      }
     }
 }

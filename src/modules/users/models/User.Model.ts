@@ -1,4 +1,5 @@
-import { AutoIncrement, Column, DataType, Model, PrimaryKey, Table } from "sequelize-typescript"
+import { AutoIncrement, Column, DataType, HasMany, Model, PrimaryKey, Table } from "sequelize-typescript"
+import { AddressModel } from "./Address.Model";
 interface UserAttributes{
     u_id?:number | null;
     username:string;
@@ -94,4 +95,7 @@ export class UserModel extends Model<UserAttributes> implements UserAttributes {
         defaultValue:false
     })
     declare isverified:boolean;
+
+    @HasMany(()=>AddressModel)
+    addresses!:AddressModel[]
 }
